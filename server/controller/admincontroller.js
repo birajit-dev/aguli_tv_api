@@ -2377,16 +2377,25 @@ exports.getAllLiveTV = async (req, res) => {
     try {
         const liveTVChannels = await LiveTVModel.find();
         
+        // Get recent 20 news articles with selected fields
+        const recentNews = await AiNewsModel.find()
+            .sort({ _id: -1 })
+            .limit(20)
+            .select('post_name post_url post_description post_image update_date author_name');
+
         res.status(200).json({
             success: true,
-            data: liveTVChannels
+            data: {
+                liveTVChannels,
+                recentNews
+            }
         });
 
     } catch (error) {
-        console.error('Error fetching live TV channels:', error);
+        console.error('Error fetching live TV channels and news:', error);
         res.status(500).json({
             success: false,
-            message: 'Error fetching live TV channels',
+            message: 'Error fetching live TV channels and news',
             error: error.message
         });
     }
