@@ -45,6 +45,8 @@ const aws = require('aws-sdk');
 const multerS3 = require('multer-s3');
 const uploadNewsImage = require('../middleware/uploadNewsImage');
 
+const LiveTVModel = require('../model/livetv');
+
 const admin = require('firebase-admin');
 
 // Initialize Firebase Admin with your service account credentials
@@ -1779,7 +1781,7 @@ exports.getVideoById = async (req, res) => {
 exports.getVideoMobile = async (req, res) => {
     try {
         const { category } = req.query;
-        const domain = "https://l.com"; // Add domain for file URLs
+        const domain = "https://api.sparkshine.co"; // Add domain for file URLs
 
         if (!category) {
             return res.status(400).json({
@@ -2331,3 +2333,136 @@ exports.sendPushNotification = async (req, res) => {
         });
     }
 };
+
+
+//Controller for LiveTV
+
+// Add Live TV Channel
+exports.addLiveTV = async (req, res) => {
+    try {
+        const { live_tv_name, live_tv_link } = req.body;
+
+        if (!live_tv_name || !live_tv_link) {
+            return res.status(400).json({
+                success: false,
+                message: 'Live TV name and link are required'
+            });
+        }
+
+        const newLiveTV = new LiveTVModel({
+            live_tv_name,
+            live_tv_link
+        });
+
+        await newLiveTV.save();
+
+        res.status(201).json({
+            success: true,
+            message: 'Live TV channel added successfully',
+            data: newLiveTV
+        });
+
+    } catch (error) {
+        console.error('Error adding live TV channel:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error adding live TV channel',
+            error: error.message
+        });
+    }
+};
+
+// Get All Live TV Channels
+exports.getAllLiveTV = async (req, res) => {
+    try {
+        const liveTVChannels = await LiveTVModel.find();
+        
+        res.status(200).json({
+            success: true,
+            data: liveTVChannels
+        });
+
+    } catch (error) {
+        console.error('Error fetching live TV channels:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching live TV channels',
+            error: error.message
+        });
+    }
+};
+
+// Update Live TV Channel
+exports.updateLiveTV = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { live_tv_name, live_tv_link } = req.body;
+
+        if (!live_tv_name || !live_tv_link) {
+            return res.status(400).json({
+                success: false,
+                message: 'Live TV name and link are required'
+            });
+        }
+
+        const updatedLiveTV = await LiveTVModel.findByIdAndUpdate(
+            id,
+            {
+                live_tv_name,
+                live_tv_link
+            },
+            { new: true }
+        );
+
+        if (!updatedLiveTV) {
+            return res.status(404).json({
+                success: false,
+                message: 'Live TV channel not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Live TV channel updated successfully',
+            data: updatedLiveTV
+        });
+
+    } catch (error) {
+        console.error('Error updating live TV channel:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating live TV channel',
+            error: error.message
+        });
+    }
+};
+
+// Delete Live TV Channel
+exports.deleteLiveTV = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deletedLiveTV = await LiveTVModel.findByIdAndDelete(id);
+
+        if (!deletedLiveTV) {
+            return res.status(404).json({
+                success: false,
+                message: 'Live TV channel not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Live TV channel deleted successfully'
+        });
+
+    } catch (error) {
+        console.error('Error deleting live TV channel:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting live TV channel',
+            error: error.message
+        });
+    }
+};
+

@@ -99,6 +99,13 @@ router.get('/api/v1/mobile/getnewsbyid', allController.getNewsbyId);
 //API FOR PUSH NOTIFICATIONS
 router.post('/api/v1/push/notification', adminController.sendPushNotification);
 
+//API FOR LIVE TV
+router.post('/api/v1/'+appname+'/livetv/add', adminController.addLiveTV);
+router.get('/api/v1/'+appname+'/livetv/getall', adminController.getAllLiveTV);
+router.put('/api/v1/'+appname+'/livetv/update/:id', adminController.updateLiveTV);
+router.delete('/api/v1/'+appname+'/livetv/delete/:id', adminController.deleteLiveTV);
+
+
 
 
 
