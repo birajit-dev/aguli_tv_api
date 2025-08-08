@@ -4,6 +4,7 @@ const axios = require('axios');
 const { route } = require('express/lib/application');
 const router = express.Router();
 const allController = require('../controller/allcontroller');
+const api2Controller = require('../controller/apiv2');
 const adminController = require('../controller/admincontroller');
 const sessions = require('express-session');
 const uploadNewsImage = require('../middleware/uploadNewsImage');
@@ -94,6 +95,7 @@ router.put('/api/v1/'+appname+'/explore/like/:id', adminController.toggleLike);
 //API FOR MOBILE APP NEWS
 router.get('/api/v1/mobile/category', adminController.getCategoryMobile);
 router.get('/api/v1/mobile/news', allController.getNewsByCategory);
+router.get('/api/v2/mobile/news', api2Controller.getNewsByCategory);
 router.get('/api/v1/mobile/getnewsbyid', allController.getNewsbyId);
 
 //API FOR PUSH NOTIFICATIONS
@@ -117,6 +119,8 @@ router.get('/api/v1/'+appname+'/ads/getall', adminController.getAllAds);
 router.put('/api/v1/'+appname+'/ads/update/:id', adminController.updateAds);
 router.delete('/api/v1/'+appname+'/ads/delete/:id', adminController.deleteAds);
 router.get('/api/v1/'+appname+'/ads/get/:id', adminController.getAdsById);
+
+
 
 
 
