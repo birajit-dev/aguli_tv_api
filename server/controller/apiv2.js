@@ -100,13 +100,19 @@ exports.getNewsByCategory = async (req, res) => {
         }));
 
         // Get ads for home screen
-        const ads = await AdsModel.find({
+        let ads = await AdsModel.find({
             ads_screen: 'home',
             ads_status: 'active'
         })
         .select('ads_type ads_link ads_image ads_sequence')
         .sort('ads_sequence')
         .lean();
+
+        // Add domain to ads_image paths
+        ads = ads.map(ad => ({
+            ...ad,
+            ads_image: `http://api.aguli.in${ad.ads_image}`
+        }));
 
         // Calculate total pages
         const totalPages = Math.ceil(totalCount / limit);
