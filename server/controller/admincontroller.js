@@ -17,6 +17,7 @@ const ProfileModel = require('../model/profile');
 const VideoModel = require('../model/video');
 const ExploreModel = require('../model/explore');
 const CitizenModel = require('../model/citizen');
+const AdsModel = require('../model/ads');
 require('dotenv').config(); // To manage API keys securely
 const { OpenAI } = require('openai');
 const axios = require('axios');
@@ -2661,3 +2662,236 @@ exports.deleteCitizen = async (req, res) => {
     }
 };
 
+
+
+//Controller for Ads//
+// Add New Advertisement
+// Configure multer for image uploads
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, 'public/uploads/ads');
+    },
+    filename: function(req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    fileFilter: function(req, file, cb) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+            return cb(new Error('Only image files are allowed!'), false);
+        }
+        cb(null, true);
+    }
+}).single('ads_image');
+
+exports.addAds = async (req, res) => {
+    try {
+        // Use multer upload middleware before processing request
+        upload(req, res, async function(err) {
+            if (err) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Error uploading file',
+                    error: err.message
+                });
+            }
+
+            // Log the request body to see what's being received
+            console.log('Request body:', req.body);
+            console.log('Request file:', req.file);
+
+            const { ads_name, ads_type, ads_screen, ads_link, ads_status, ads_sequence } = req.body;
+
+            // Validate required fields with more specific error messages
+            const requiredFields = ['ads_name', 'ads_type', 'ads_screen'];
+            const missingFields = requiredFields.filter(field => !req.body[field]);
+            
+            if (missingFields.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Missing required fields: ${missingFields.join(', ')}`
+                });
+            }
+
+            let ads_image = '';
+
+            // Check if ad with same name already exists
+            const existingAd = await AdsModel.findOne({ ads_name });
+            if (existingAd) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Advertisement with this name already exists'
+                });
+            }
+
+            // Handle image upload if file is present
+            if (req.file) {
+                ads_image = '/uploads/ads/' + req.file.filename;
+            }
+
+            const newAds = new AdsModel({
+                ads_name,
+                ads_type,
+                ads_screen,
+                ads_link,
+                ads_status,
+                ads_image,
+                ads_sequence
+            });
+
+            await newAds.save();
+
+            res.status(201).json({
+                success: true,
+                message: 'Advertisement added successfully',
+                data: newAds
+            });
+        });
+
+    } catch (error) {
+        console.error('Add Advertisement Error:', error);
+        res.status(500).json({
+            success: false, 
+            message: 'Error adding advertisement',
+            error: error.message
+        });
+    }
+};
+
+// Get All Advertisements
+exports.getAllAds = async (req, res) => {
+    try {
+        const ads = await AdsModel.find().sort({ created_at: -1 });
+
+        res.status(200).json({
+            success: true,
+            data: ads
+        });
+
+    } catch (error) {
+        console.error('Get Advertisements Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error retrieving advertisements',
+            error: error.message
+        });
+    }
+};
+
+// Update Advertisement
+exports.updateAds = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { ads_name, ads_type, ads_screen, ads_link, ads_status } = req.body;
+        
+        const ads = await AdsModel.findById(id);
+        if (!ads) {
+            return res.status(404).json({
+                success: false,
+                message: 'Advertisement not found'
+            });
+        }
+
+        // Handle image update if new file is uploaded
+        if (req.file) {
+            // Delete old image if exists
+            if (ads.ads_image) {
+                const oldImagePath = path.join(__dirname, '..', 'public', ads.ads_image);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
+            ads.ads_image = '/uploads/ads/' + req.file.filename;
+        }
+
+        ads.ads_name = ads_name;
+        ads.ads_type = ads_type;
+        ads.ads_screen = ads_screen;
+        ads.ads_link = ads_link;
+        ads.ads_status = ads_status;
+
+        await ads.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Advertisement updated successfully',
+            data: ads
+        });
+
+    } catch (error) {
+        console.error('Update Advertisement Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating advertisement',
+            error: error.message
+        });
+    }
+};
+
+// Delete Advertisement
+exports.deleteAds = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const ads = await AdsModel.findById(id);
+        if (!ads) {
+            return res.status(404).json({
+                success: false,
+                message: 'Advertisement not found'
+            });
+        }
+
+        // Delete associated image file
+        if (ads.ads_image) {
+            const imagePath = path.join(__dirname, '..', 'public', ads.ads_image);
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
+        }
+
+        await AdsModel.findByIdAndDelete(id);
+
+        res.status(200).json({
+            success: true,
+            message: 'Advertisement deleted successfully'
+        });
+
+    } catch (error) {
+        console.error('Delete Advertisement Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting advertisement',
+            error: error.message
+        });
+    }
+};
+
+// Get Advertisement by ID
+exports.getAdsById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const ads = await AdsModel.findById(id);
+        if (!ads) {
+            return res.status(404).json({
+                success: false,
+                message: 'Advertisement not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: ads
+        });
+
+    } catch (error) {
+        console.error('Get Advertisement Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error retrieving advertisement',
+            error: error.message
+        });
+    }
+};

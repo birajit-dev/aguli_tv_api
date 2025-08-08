@@ -111,6 +111,13 @@ router.post('/api/v1/'+appname+'/citizen/add', adminController.addCitizen);
 router.get('/api/v1/'+appname+'/citizen/getall', adminController.getCitizens);
 router.delete('/api/v1/'+appname+'/citizen/delete/:id', adminController.deleteCitizen);
 
+//API for Ads
+router.post('/api/v1/'+appname+'/ads/add', adminController.addAds);
+router.get('/api/v1/'+appname+'/ads/getall', adminController.getAllAds);
+router.put('/api/v1/'+appname+'/ads/update/:id', adminController.updateAds);
+router.delete('/api/v1/'+appname+'/ads/delete/:id', adminController.deleteAds);
+router.get('/api/v1/'+appname+'/ads/get/:id', adminController.getAdsById);
+
 
 
 
