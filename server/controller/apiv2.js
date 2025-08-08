@@ -96,7 +96,7 @@ exports.getNewsByCategory = async (req, res) => {
         news = news.map(item => ({
             ...item,
             post_image: domain ? `${domain}${item.post_image}` : item.post_image,
-            update_date: new Date(item.update_date).toISOString()
+            update_date: new Date(item.update_date).toISOString().replace(/\.\d{3}Z$/, 'Z') // Format as 2025-07-29T07:34:00Z
         }));
 
         // Get ads for home screen
