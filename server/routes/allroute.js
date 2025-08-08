@@ -88,6 +88,7 @@ router.post('/api/v1/'+appname+'/profile/upload/:googleId', adminController.uplo
 //Explore Route
 router.post('/api/v1/'+appname+'/explore/add', adminController.createExplore);
 router.get('/api/v1/'+appname+'/explore/getall', adminController.getAllExplore);
+router.get('/api/v2/'+appname+'/explore/getall', api2Controller.getAllExplore);
 router.delete('/api/v1/'+appname+'/explore/delete/:id', adminController.deleteExplore);
 router.put('/api/v1/'+appname+'/explore/like/:id', adminController.toggleLike);
 

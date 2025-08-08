@@ -141,3 +141,63 @@ exports.getNewsByCategory = async (req, res) => {
         });
     }
 };
+
+exports.getAllExplore = async (req, res) => {
+    try {
+        // Get page from query params, default to 1 if not provided
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10; // Fixed limit of 10 items per page
+
+        // Calculate skip value for pagination
+        const skip = (page - 1) * limit;
+
+        // Get total count of documents
+        const total = await ExploreModel.countDocuments();
+
+        // Get paginated explore posts
+        const explorePosts = await ExploreModel.find()
+            .sort({ createdAt: -1 }) // Fixed field name
+            .skip(skip)
+            .limit(limit)
+            .lean(); // Add lean() for better performance
+
+        // Get ads for explore screen
+        let ads = await AdsModel.find({
+            ads_screen: 'explore',
+            ads_status: 'active'
+        })
+        .select('ads_type ads_link ads_image ads_sequence')
+        .sort('ads_sequence')
+        .lean();
+
+        // Add domain to ads_image paths
+        ads = ads.map(ad => ({
+            ...ad,
+            ads_image: `http://api.aguli.in${ad.ads_image}`
+        }));
+
+        return res.status(200).json({
+            success: true,
+            message: 'Explore posts fetched successfully',
+            data: {
+                explorePosts,
+                ads,
+                pagination: {
+                    currentPage: page,
+                    totalPages: Math.ceil(total / limit),
+                    totalItems: total,
+                    itemsPerPage: limit,
+                    hasNextPage: page < Math.ceil(total / limit),
+                    hasPrevPage: page > 1
+                }
+            }
+        });
+    } catch (err) {
+        console.error('Error fetching explore posts:', err);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error',
+            error: err.message
+        });
+    }
+};
