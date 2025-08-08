@@ -8,6 +8,7 @@ const citizenSchema = new mongoose.Schema({
     post_image: String,
     profile_name: String,
     post_status: String,
+    phone_number: String,
     created_at: String,
 });
 

@@ -2527,8 +2527,8 @@ exports.addCitizen = async (req, res) => {
         });
 
         // Validate required fields
-        const { post_name, post_content, profile_name } = req.body;
-        if (!post_name || !post_content || !profile_name) {
+        const { post_name, post_content, profile_name, phone_number } = req.body;
+        if (!post_name || !post_content || !profile_name || !phone_number) {
             throw new Error('Missing required fields');
         }
 
@@ -2541,6 +2541,7 @@ exports.addCitizen = async (req, res) => {
 
         const newCitizen = new CitizenModel({
             post_name,
+            phone_number,
             post_url: purl,
             post_content,
             post_image: filePath,
@@ -2590,6 +2591,34 @@ exports.getCitizens = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error retrieving citizens',
+            error: error.message
+        });
+    }
+};
+
+exports.getCitizenById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const citizen = await CitizenModel.findById(id);
+
+        if (!citizen) {
+            return res.status(404).json({
+                success: false,
+                message: 'Citizen not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Citizen retrieved successfully',
+            data: citizen
+        });
+
+    } catch (error) {
+        console.error('Get Citizen By ID Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error retrieving citizen',
             error: error.message
         });
     }
