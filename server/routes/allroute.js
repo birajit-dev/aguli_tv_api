@@ -106,6 +106,12 @@ router.put('/api/v1/'+appname+'/livetv/update/:id', adminController.updateLiveTV
 router.delete('/api/v1/'+appname+'/livetv/delete/:id', adminController.deleteLiveTV);
 
 
+//API FOR CITIZEN
+router.post('/api/v1/'+appname+'/citizen/add', adminController.addCitizen);
+router.get('/api/v1/'+appname+'/citizen/getall', adminController.getCitizens);
+router.delete('/api/v1/'+appname+'/citizen/delete/:id', adminController.deleteCitizen);
+
+
 
 
 

@@ -16,6 +16,7 @@ const CategoryModel = require('../model/category');
 const ProfileModel = require('../model/profile');
 const VideoModel = require('../model/video');
 const ExploreModel = require('../model/explore');
+const CitizenModel = require('../model/citizen');
 require('dotenv').config(); // To manage API keys securely
 const { OpenAI } = require('openai');
 const axios = require('axios');
@@ -2470,6 +2471,162 @@ exports.deleteLiveTV = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error deleting live TV channel',
+            error: error.message
+        });
+    }
+};
+
+
+//Controller for Citizen//
+// Add Citizen Post
+exports.addCitizen = async (req, res) => {
+    try {
+        // Configure multer storage
+        const storage = multer.diskStorage({
+            destination: function (req, file, cb) {
+                // Create directory if it doesn't exist
+                const dir = 'public/uploads/citizen';
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir, { recursive: true });
+                }
+                cb(null, dir);
+            },
+            filename: function (req, file, cb) {
+                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+                cb(null, uniqueSuffix + path.extname(file.originalname));
+            }
+        });
+
+        // Configure multer upload
+        const upload = multer({
+            storage: storage,
+            limits: {
+                fileSize: 5 * 1024 * 1024 // 5MB limit
+            },
+            fileFilter: function (req, file, cb) {
+                if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+                    return cb(new Error('Only image files are allowed!'), false);
+                }
+                cb(null, true);
+            }
+        }).single('post_image'); // Changed to single() instead of fields()
+
+        // Handle upload using Promise
+        await new Promise((resolve, reject) => {
+            upload(req, res, function (err) {
+                if (err) {
+                    reject(err);
+                }
+                resolve();
+            });
+        }).catch(err => {
+            if (err instanceof multer.MulterError) {
+                throw new Error(`File upload error: ${err.message}`);
+            }
+            throw new Error(`Error uploading file: ${err.message}`);
+        });
+
+        // Validate required fields
+        const { post_name, post_content, profile_name } = req.body;
+        if (!post_name || !post_content || !profile_name) {
+            throw new Error('Missing required fields');
+        }
+
+        if (!req.file) {
+            throw new Error('Image file is required');
+        }
+
+        const filePath = "/uploads/citizen/" + req.file.filename;
+        const purl = post_name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+
+        const newCitizen = new CitizenModel({
+            post_name,
+            post_url: purl,
+            post_content,
+            post_image: filePath,
+            profile_name,
+            post_status: 'active',
+            created_at: new Date().toISOString()
+        });
+
+        await newCitizen.save();
+
+        return res.status(200).json({ 
+            success: true,
+            message: 'Citizen post created successfully',
+            data: newCitizen
+        });
+
+    } catch (error) {
+        console.error('Add Citizen Error:', error);
+        // Delete uploaded file if there was an error saving to database
+        if (req.file) {
+            const filePath = path.join(__dirname, '..', 'public/uploads/citizen', req.file.filename);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        }
+        return res.status(400).json({
+            success: false, 
+            message: error.message || 'Failed to create citizen post'
+        });
+    }
+};
+
+// Get All Citizen Posts
+exports.getCitizens = async (req, res) => {
+    try {
+        const citizens = await CitizenModel.find()
+            .sort({ created_at: -1 });
+
+        res.status(200).json({
+            success: true,
+            message: 'Citizens retrieved successfully',
+            data: citizens
+        });
+
+    } catch (error) {
+        console.error('Get Citizens Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error retrieving citizens',
+            error: error.message
+        });
+    }
+};
+
+// Delete Citizen Post
+exports.deleteCitizen = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deletedCitizen = await CitizenModel.findByIdAndDelete(id);
+
+        if (!deletedCitizen) {
+            return res.status(404).json({
+                success: false,
+                message: 'Citizen post not found'
+            });
+        }
+
+        // Delete associated image file
+        if (deletedCitizen.post_image) {
+            const imagePath = path.join(__dirname, '..', 'public', deletedCitizen.post_image);
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Citizen post deleted successfully'
+        });
+
+    } catch (error) {
+        console.error('Delete Citizen Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting citizen post',
             error: error.message
         });
     }
