@@ -620,12 +620,12 @@ admin.initializeApp({
           });
           await newNews.save();
 	  try {
-            await axios.post('https://kokthum.com/send', {
-                title: `📰 ${post_name}`,
-                message: post_description || 'A new post just dropped!', 
-                //message: post_description ' | Click to Read More', 
-                url: `https://kokthum.com/${post_category}/${purl}`
-            });
+            // await axios.post('https://kokthum.com/send', {
+            //     title: `📰 ${post_name}`,
+            //     message: post_description || 'A new post just dropped!', 
+            //     //message: post_description ' | Click to Read More', 
+            //     url: `https://kokthum.com/${post_category}/${purl}`
+            // });
           } catch (error) {
               console.error('Error sending notification:', error);
               // Continue execution even if notification fails

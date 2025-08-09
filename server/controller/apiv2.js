@@ -65,7 +65,7 @@ exports.getNewsByCategory = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 10; // Number of items per page
         const skip = (page - 1) * limit;
-        const domain = "https://kokthum.com" // Get domain from query params
+        const domain = "https://api.aguli.com" // Get domain from query params
 
         // Validate category parameter
         if (!category) {
