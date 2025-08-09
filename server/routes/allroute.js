@@ -123,6 +123,11 @@ router.get('/api/v1/'+appname+'/ads/get/:id', adminController.getAdsById);
 
 
 
+router.post('/web/post/adduser', adminController.addAuthor);
+
+
+
+
 
 
 

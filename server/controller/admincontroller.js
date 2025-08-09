@@ -2917,3 +2917,42 @@ exports.getAdsById = async (req, res) => {
         });
     }
 };
+
+
+//Add for Author
+exports.addAuthor = async(req, res) =>{
+    const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    function generateString(length) {
+    let result = '';
+    const charactersLength = characters.length;
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+    }
+    const ab =  req.body;
+    const addauthor = new UserModel({
+        user_mail: ab.user_mail,
+        user_name: ab.user_name,
+        user_role: ab.user_role,
+        user_status: ab.user_status,
+        user_pic: ab.user_pic,
+        login_id: ab.login_id,
+        password: ab.password,
+        author_bio: ab.author_bio,
+        update_date: newDate,
+        facebook_link: ab.facebook_link,
+        twitter_link: ab.twitter_link,
+        instagram_link: ab.instagram_link,
+        linkedin_link: ab.linkedin_link,
+        tag_line: ab.tag_line,
+        domain_owner: ab.domain_owner,
+        domain_key: ab.domain_key,
+        domain_name: ab.domain_name,
+        author_code: generateString(6),
+        update_date: String
+
+    });
+    await addauthor.save();
+    res.send("User Added Successfully");
+}
