@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 
-mongoose.connect("mongodb://localhost:27017/aguli_tv", {
+mongoose.connect("mongodb://localhost:27017/aguli_tv_production", {
    useNewUrlParser: true,
    useUnifiedTopology: true
 });

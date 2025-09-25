@@ -15,7 +15,7 @@ exports.getNewsByCategory = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 10; // Number of items per page
         const skip = (page - 1) * limit;
-        const domain = "http://kokthum.com" // Get domain from query params
+        const domain = "https://api.boroklabs.com" // Get domain from query params
 
         // Validate category parameter
         if (!category) {
@@ -80,7 +80,7 @@ exports.getNewsByCategory = async (req, res) => {
 exports.getNewsbyId = async (req, res) => {
     try {
         const newsId = req.query.id;
-        const domain = "https://kokthum.com";
+        const domain = "https://api.boroklabs.com";
 
         // Get the main news article
         const news = await NewsModel.findById(newsId)

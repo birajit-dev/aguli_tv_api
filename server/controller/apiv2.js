@@ -65,7 +65,7 @@ exports.getNewsByCategory = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 10; // Number of items per page
         const skip = (page - 1) * limit;
-        const domain = "https://kokthum.com" // Get domain from query params
+        const domain = "https://api.boroklabs.com" // Get domain from query params
 
         // Validate category parameter
         if (!category) {
@@ -111,7 +111,7 @@ exports.getNewsByCategory = async (req, res) => {
         // Add domain to ads_image paths
         ads = ads.map(ad => ({
             ...ad,
-            ads_image: `https://kokthum.com${ad.ads_image}`
+            ads_image: `https://api.boroklabs.com${ad.ads_image}`
         }));
 
         // Calculate total pages
@@ -173,7 +173,7 @@ exports.getAllExplore = async (req, res) => {
         // Add domain to ads_image paths
         ads = ads.map(ad => ({
             ...ad,
-            ads_image: `https://kokthum.com${ad.ads_image}`
+            ads_image: `https://api.boroklabs.com${ad.ads_image}`
         }));
 
         return res.status(200).json({

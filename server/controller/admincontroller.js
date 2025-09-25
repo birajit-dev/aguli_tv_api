@@ -351,7 +351,7 @@ admin.initializeApp({
                 const nDate = moment().format('lll');
                 let mediaAdd = new MediaModel({
                     media_path:aFile,
-                    media_alt:"Kokthum news image",
+                    media_alt:"Aguli news image",
                     update_date:newDate,
                 });
                 mediaAdd.save();
@@ -1783,7 +1783,7 @@ exports.getVideoById = async (req, res) => {
 exports.getVideoMobile = async (req, res) => {
     try {
         const { category } = req.query;
-        const domain = "https://api.sparkshine.co"; // Add domain for file URLs
+        const domain = "https://api.boroklabs.com"; // Add domain for file URLs
 
         if (!category) {
             return res.status(400).json({
