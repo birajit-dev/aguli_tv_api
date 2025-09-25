@@ -2287,10 +2287,10 @@ exports.sendPushNotification = async (req, res) => {
             thumbnail_url 
         } = req.body;
 
-        if (!title || !body || !news_id) {
+        if (!title || !body) {
             return res.status(400).json({
                 success: false,
-                message: 'Title, body, and news ID are required for push notification'
+                message: 'Title and body are required for push notification'
             });
         }
 
@@ -2298,32 +2298,43 @@ exports.sendPushNotification = async (req, res) => {
             notification: {
                 title,
                 body,
-                imageUrl: thumbnail_url || null
+                ...(thumbnail_url && { imageUrl: thumbnail_url })
             },
             data: {
                 click_action: 'FLUTTER_NOTIFICATION_CLICK',
                 screen: screen || 'newsDetails',
-                news_id: news_id,
-                thumbnail_url: thumbnail_url || '',
+                ...(news_id && { news_id: news_id.toString() }),
+                ...(thumbnail_url && { thumbnail_url: thumbnail_url }),
                 timestamp: new Date().toISOString()
             },
             android: {
                 priority: 'high',
                 notification: {
                     clickAction: 'FLUTTER_NOTIFICATION_CLICK',
-                    imageUrl: thumbnail_url || null,
-                    style: 'BIGTEXT',
+                    ...(thumbnail_url && { imageUrl: thumbnail_url }),
                     channelId: 'news_channel'
+                }
+            },
+            apns: {
+                payload: {
+                    aps: {
+                        'mutable-content': 1
+                    }
+                },
+                fcm_options: {
+                    ...(thumbnail_url && { image: thumbnail_url })
                 }
             },
             topic: 'all'
         };
 
-        await admin.messaging().send(message);
+        const response = await admin.messaging().send(message);
+        console.log('Successfully sent message:', response);
 
         res.status(200).json({
             success: true,
-            message: 'Push notification sent successfully to all users'
+            message: 'Push notification sent successfully to all users',
+            messageId: response
         });
 
     } catch (err) {
