@@ -2279,6 +2279,15 @@ exports.toggleLike = async (req, res) => {
 
 exports.sendPushNotification = async (req, res) => {
     try {
+        // Check if Firebase Admin is properly initialized
+        if (!admin.apps.length) {
+            return res.status(500).json({
+                success: false,
+                message: 'Firebase Admin not properly initialized',
+                error: 'Firebase credentials are invalid or missing'
+            });
+        }
+
         const { 
             title, 
             body, 
@@ -2339,6 +2348,16 @@ exports.sendPushNotification = async (req, res) => {
 
     } catch (err) {
         console.error('Error sending push notification:', err);
+        
+        // Handle specific Firebase credential errors
+        if (err.code === 'app/invalid-credential') {
+            return res.status(500).json({
+                success: false,
+                message: 'Firebase credentials are invalid or expired',
+                error: 'Please check Firebase service account configuration'
+            });
+        }
+
         res.status(500).json({
             success: false,
             message: 'Error sending push notification',
