@@ -3007,14 +3007,14 @@ exports.handleDeepLink = async (req, res) => {
         if (ua.includes("Android")) {
             // Try to open app via intent
             return res.redirect(
-                `intent://news/${id}#Intent;scheme=aguli;package=com.aguli.app;end`
+                `intent://news/${id}#Intent;scheme=agulitv;package=com.agulimedia.agulitv;end`
             );
         } else if (ua.includes("iPhone")) {
             // iOS deep link (scheme)
-            return res.redirect(`aguli://news/${id}`);
+            return res.redirect(`agulitv://news/${id}`);
         } else {
             // Fallback web page or Play Store
-            return res.redirect("https://play.google.com/store/apps/details?id=com.aguli.app");
+            return res.redirect("https://play.google.com/store/apps/details?id=com.agulimedia.agulitv");
         }
 
     } catch (error) {
