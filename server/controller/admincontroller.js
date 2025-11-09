@@ -52,7 +52,7 @@ const LiveTVModel = require('../model/livetv');
 const admin = require('firebase-admin');
 
 // Initialize Firebase Admin with your service account credentials
-const serviceAccount = require('./aguli-tv-firebase-adminsdk-fbsvc-982ae0adec.json'); // Firebase service account file in public folder
+const serviceAccount = require('./aguli-tv-firebase-adminsdk-fbsvc-80287c598f.json'); // Firebase service account file in controller folder
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
@@ -1783,7 +1783,7 @@ exports.getVideoById = async (req, res) => {
 exports.getVideoMobile = async (req, res) => {
     try {
         const { category } = req.query;
-        const domain = "https://api.boroklabs.com"; // Add domain for file URLs
+        const domain = "https://api.kokthai.in"; // Add domain for file URLs
 
         if (!category) {
             return res.status(400).json({
