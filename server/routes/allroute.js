@@ -121,6 +121,8 @@ router.put('/api/v1/'+appname+'/ads/update/:id', adminController.updateAds);
 router.delete('/api/v1/'+appname+'/ads/delete/:id', adminController.deleteAds);
 router.get('/api/v1/'+appname+'/ads/get/:id', adminController.getAdsById);
 
+//API FOR DEEP LINK
+router.get('/news/:id', adminController.handleDeepLink);
 
 
 router.post('/web/post/adduser', adminController.addAuthor);

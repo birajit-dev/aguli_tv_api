@@ -2986,3 +2986,43 @@ exports.addAuthor = async(req, res) =>{
     await addauthor.save();
     res.send("User Added Successfully");
 }
+
+
+
+// Deep Link Controller
+exports.handleDeepLink = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: 'News ID is required'
+            });
+        }
+
+        // Optional: detect user agent (Android / iOS / browser)
+        const ua = req.get("User-Agent") || "";
+
+        if (ua.includes("Android")) {
+            // Try to open app via intent
+            return res.redirect(
+                `intent://news/${id}#Intent;scheme=aguli;package=com.aguli.app;end`
+            );
+        } else if (ua.includes("iPhone")) {
+            // iOS deep link (scheme)
+            return res.redirect(`aguli://news/${id}`);
+        } else {
+            // Fallback web page or Play Store
+            return res.redirect("https://play.google.com/store/apps/details?id=com.aguli.app");
+        }
+
+    } catch (error) {
+        console.error('Deep Link Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error handling deep link',
+            error: error.message
+        });
+    }
+};
